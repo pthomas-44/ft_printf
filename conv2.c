@@ -6,31 +6,50 @@
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/08 17:45:51 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/08 18:01:45 by pthomas          ###   ########lyon.fr   */
+/*   Updated: 2021/01/18 14:17:13 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-char	*pf_convunsigned(unsigned int nb)
+char	*pf_convunsigned(unsigned long long int nb, t_arg *arg)
 {
-	return (ft_itou((unsigned int)nb));
+	char *s;
+
+	s = ft_itou((unsigned int)nb);
+	if (*s == '0' && arg->dot == 1 && arg->prec == 0 && arg->width != 0)
+		*s = ' ';
+	else if (*s == '0' && arg->dot == 1 && arg->prec == 0)
+		*s = '\0';
+	return (s);
 }
 
-char	*pf_convhexa(unsigned long long nb)
+char	*pf_convhexa(unsigned long long int nb, t_arg *arg)
 {
 	char *hex;
+	char *s;
 
 	hex = "0123456789abcdef";
-	return (ft_itohex(nb, hex));
+	s = ft_itohex(nb, hex);
+	if (*s == '0' && arg->dot == 1 && arg->prec == 0 && arg->width != 0)
+		*s = ' ';
+	else if (*s == '0' && arg->dot == 1 && arg->prec == 0)
+		*s = '\0';
+	return (s);
 }
 
-char	*pf_convcaphexa(unsigned int nb)
+char	*pf_convcaphexa(unsigned long long int nb, t_arg *arg)
 {
 	char *hex;
+	char *s;
 
 	hex = "0123456789ABCDEF";
-	return (ft_itohex(nb, hex));
+	s = ft_itohex(nb, hex);
+	if (*s == '0' && arg->dot == 1 && arg->prec == 0 && arg->width != 0)
+		*s = ' ';
+	else if (*s == '0' && arg->dot == 1 && arg->prec == 0)
+		*s = '\0';
+	return (s);
 }
 
 char	*pf_convpercent(void)

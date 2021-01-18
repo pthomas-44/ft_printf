@@ -6,23 +6,13 @@
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 17:36:00 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/11 10:19:03 by pthomas          ###   ########lyon.fr   */
+/*   Updated: 2021/01/18 15:28:48 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int		pf_fmtlen(const char **fmt)
-{
-	int i;
-
-	i = 0;
-	while ((*fmt)[i] && (*fmt)[i] != '%')
-		i++;
-	return (i);
-}
-
-int		pf_cpy(const char **fmt, char **s, int *len)
+int		pf_cpy(t_arg *arg, const char **fmt, char **s)
 {
 	char	*str;
 	int		i;
@@ -35,72 +25,82 @@ int		pf_cpy(const char **fmt, char **s, int *len)
 	{
 		str[i] = **fmt;
 		i++;
-		(*len)++;
+		(arg->len)++;
 		(*fmt)++;
 	}
-	if (!((*s = ft_strjoin_f3(*s, str))))
-		return (-1);
+	*s = str;
 	return (0);
 }
 
-char	*pf_conv(t_arg *arg, va_list *ap, int *len)
+char	*pf_converter(t_arg *arg, char *s)
+{
+	if (arg->conv == 'c')
+		s = pf_convchar(va_arg(arg->ap, int), arg);
+	else if (arg->conv == 's')
+		s = pf_convstr(va_arg(arg->ap, char *));
+	else if (arg->conv == 'p')
+		s = pf_convadress((unsigned long long)va_arg(arg->ap, void *), arg);
+	else if (arg->conv == 'd' || arg->conv == 'i')
+		s = pf_convint(va_arg(arg->ap, int), arg);
+	else if (arg->conv == 'u')
+		s = pf_convunsigned(va_arg(arg->ap, unsigned int), arg);
+	else if (arg->conv == 'x')
+		s = pf_convhexa(va_arg(arg->ap, unsigned int), arg);
+	else if (arg->conv == 'X')
+		s = pf_convcaphexa(va_arg(arg->ap, unsigned int), arg);
+	else if (arg->conv == '%')
+		s = pf_convpercent();
+	else if (arg->conv == 'n')
+	{
+		*(va_arg(arg->ap, int*)) = arg->len;
+		return (ft_strdup(""));
+	}
+	return (s);
+}
+
+char	*pf_conv(t_arg *arg)
 {
 	char	*s;
 
 	s = 0;
-	if (arg->conv == 'c')
-		s = pf_convchar(va_arg(*ap, int));
-	else if (arg->conv == 's')
-		s = pf_convstr(va_arg(*ap, char *));
-	else if (arg->conv == 'p')
-		s = pf_convadress((unsigned long long)va_arg(*ap, void *));
-	else if (arg->conv == 'd' || arg->conv == 'i')
-		s = pf_convint(va_arg(*ap, int));
-	else if (arg->conv == 'u')
-		s = pf_convunsigned(va_arg(*ap, unsigned int));
-	else if (arg->conv == 'x')
-		s = pf_convhexa(va_arg(*ap, unsigned int));
-	else if (arg->conv == 'X')
-		s = pf_convcaphexa(va_arg(*ap, unsigned int));
-	else if (arg->conv == '%')
-		s = pf_convpercent();
-	else if (arg->conv == 'n')
-		*(va_arg(*ap, int*)) = *len;
-	if ((pf_params(&s, arg, ap, len)) == -1)
+	s = pf_converter(arg, s);
+	if ((pf_params(&s, arg)) == -1)
 	{
 		free(s);
 		return (0);
 	}
-	*len += ft_strlen(s);
+	if (arg->caschiant && arg->flags & HYPHEN)
+		arg->len += arg->caschiant + ft_strlen(s + 1);
+	else
+		arg->len += ft_strlen(s) + arg->caschiant;
 	return (s);
 }
 
 int		ft_printf(const char *fmt, ...)
 {
-	va_list	ap;
 	t_arg	arg;
 	char	*s;
-	int		len;
-	char	*tmp;
 
 	s = 0;
-	len = 0;
-	tmp = 0;
-	va_start(ap, fmt);
+	arg.len = 0;
+	va_start(arg.ap, fmt);
 	while (*fmt)
 	{
-		if (pf_cpy(&fmt, &s, &len) == -1)
+		if (pf_cpy(&arg, &fmt, &s) == -1)
 			return (-1);
-		if (!(pf_parse(&fmt, &arg, &ap)))
+		write(1, s, ft_strlen(s));
+		free(s);
+		if (!(pf_parse(&fmt, &arg)))
 		{
-			if (!(tmp = pf_conv(&arg, &ap, &len)))
+			if (!(s = pf_conv(&arg)))
 				return (-1);
-			if (!(s = ft_strjoin_f3(s, tmp)))
-				return (-1);
+			if (arg.caschiant && arg.flags & HYPHEN)
+				write(1, s, arg.caschiant + ft_strlen(s + 1));
+			else
+				write(1, s, ft_strlen(s) + arg.caschiant);
+			free(s);
 		}
 	}
-	write(1, s, len);
-	free(s);
-	va_end(ap);
-	return (len);
+	va_end(arg.ap);
+	return (arg.len);
 }

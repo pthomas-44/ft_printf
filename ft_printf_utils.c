@@ -1,23 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strlen.c                                        :+:      :+:    :+:   */
+/*   ft_printf_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/23 16:15:37 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/15 10:02:56 by pthomas          ###   ########lyon.fr   */
+/*   Created: 2021/01/18 13:47:01 by pthomas           #+#    #+#             */
+/*   Updated: 2021/01/18 14:12:27 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "ft_printf.h"
 
-size_t	ft_strlen(const char *s)
+int		pf_fmtlen(const char **fmt)
 {
 	int i;
 
 	i = 0;
-	while (s && s[i])
+	while ((*fmt)[i] && (*fmt)[i] != '%')
 		i++;
 	return (i);
+}
+
+int		pf_lenwospace(const char *s)
+{
+	int i;
+	int nb;
+
+	i = 0;
+	nb = 0;
+	while (s && s[i])
+	{
+		if (s[i] != ' ')
+			nb++;
+		i++;
+	}
+	return (nb);
 }

@@ -6,34 +6,18 @@
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/08 18:36:01 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/11 15:16:12 by pthomas          ###   ########lyon.fr   */
+/*   Updated: 2021/01/18 14:58:05 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-size_t	pf_strlenwospace(const char *s)
-{
-	int i;
-	int nb;
-
-	i = 0;
-	nb = 0;
-	while (s && s[i])
-	{
-		if (s[i] != ' ')
-			nb++;
-		i++;
-	}
-	return (nb);
-}
-
-int		pf_prec(char **s, t_arg *arg, va_list *ap, int *len)
+int		pf_prec(char **s, t_arg *arg)
 {
 	char *tmp;
 
 	tmp = 0;
-	if (arg->conv == 's' && ft_strlen(*s) > arg->prec)
+	if (arg->conv == 's' && (int)ft_strlen(*s) > arg->prec)
 	{
 		if (!(tmp = ft_calloc(sizeof(char), (arg->prec + 1))))
 			return (-1);
@@ -41,12 +25,12 @@ int		pf_prec(char **s, t_arg *arg, va_list *ap, int *len)
 		free(*s);
 		*s = tmp;
 	}
-	else
+	else if (arg->conv != 's')
 	{
-		while (ft_strlen(*s) < arg->prec)
+		while ((int)ft_strlen(*s) < arg->prec)
 			if (!(*s = ft_strjoin_f2("0", *s)))
 				return (-1);
-		if (ft_strlen(*s) == arg->prec && (tmp = ft_strchr(*s, '-')))
+		if ((int)ft_strlen(*s) == arg->prec && (tmp = ft_strchr(*s, '-')))
 		{
 			*tmp = '0';
 			if (!(*s = ft_strjoin_f2("-", *s)))
@@ -56,55 +40,60 @@ int		pf_prec(char **s, t_arg *arg, va_list *ap, int *len)
 	return (0);
 }
 
-void		pf_flags(char **s, t_arg *arg, va_list *ap, int *len)
+int		pf_flags2(char **s, t_arg *arg)
 {
+	if (arg->flags & PLUS)
+	{
+		if (**s != '-' && arg->width && !(arg->dot)
+		&& arg->flags & ZERO && !(arg->flags & HYPHEN))
+			**s = '+';
+		else if (**s != '-')
+			if (!(*s = ft_strjoin_f2("+", *s)))
+				return (-1);
+	}
+	else if (arg->flags & SPACE)
+	{
+		if (**s == '0' && (int)ft_strlen(*s) == arg->width)
+			**s = ' ';
+		else if (**s != '-')
+			if (!(*s = ft_strjoin_f2(" ", *s)))
+				return (-1);
+	}
+	return (0);
+}
+
+int		pf_flags(char **s, t_arg *arg)
+{
+	char *tmp;
+
 	if (arg->flags & HASH && ft_strchrstr("123456789abcdefABCDEF", *s))
 	{
 		if (arg->conv == 'x')
 			*s = ft_strjoin_f2("0x", *s);
 		else if (arg->conv == 'X')
-			*s = ft_strjoin_f2("0x", *s);
+			*s = ft_strjoin_f2("0X", *s);
 	}
 	if (arg->flags & ZERO && !(arg->flags & HYPHEN))
-	{
-		while (pf_strlenwospace(*s) < arg->prec
-			|| (pf_strlenwospace(*s) < arg->width && arg->prec == 0))
+		while (pf_lenwospace(*s) < arg->prec
+		|| (pf_lenwospace(*s) < arg->width && arg->dot == 0))
 			*s = ft_strjoin_f2("0", *s);
-	}
-	if (arg->flags & PLUS)
+	if ((tmp = ft_strchr(*s, '-')))
 	{
-		if (**s != '-')
-			if (!(*s = ft_strjoin_f2("+", *s)))
-				return (-1);
+		*tmp = '0';
+		**s = '-';
 	}
+	return (pf_flags2(s, arg));
 }
 
-int		pf_fillspace(char **s, t_arg *arg, va_list *ap, int *len)
-{
-	while (ft_strlen(*s) < arg->width)
-	{
-		if (arg->flags & HYPHEN)
-		{
-			if (!(*s = ft_strjoin_f1(*s, " ")))
-				return (-1);
-		}
-		else
-		{
-			if (!(*s = ft_strjoin_f2(" ", *s)))
-				return (-1);
-		}
-	}
-	return (0);
-}
-
-int		pf_params(char **s, t_arg *arg, va_list *ap, int *len)
+int		pf_params(char **s, t_arg *arg)
 {
 	if (arg->dot && !(ft_strchr("cp%n", arg->conv)))
-		if ((pf_prec(s, arg, ap, len)) == -1)
+		if ((pf_prec(s, arg)) == -1)
 			return (-1);
-	pf_flags(s, arg, ap, len);
-	if (ft_strlen(*s) < arg->width)
-		if ((pf_fillspace(s, arg, ap, len)) == -1)
+	if ((pf_flags(s, arg)) == -1)
+		return (-1);
+	if ((int)ft_strlen(*s) < arg->width)
+		if ((pf_fillspace(s, arg)) == -1)
 			return (-1);
 	return (0);
 }

@@ -6,7 +6,7 @@
 #    By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/24 08:57:58 by pthomas           #+#    #+#              #
-#    Updated: 2020/12/06 16:20:25 by pthomas          ###   ########lyon.fr    #
+#    Updated: 2021/01/11 16:46:13 by pthomas          ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,7 @@ SRCS		=	ft_memset.c \
 				ft_tolower.c \
 				ft_strchr.c \
 				ft_strrchr.c \
+				ft_strchrstr.c \
 				ft_strncmp.c \
 				ft_strlcpy.c \
 				ft_strlcat.c \
@@ -47,13 +48,14 @@ SRCS		=	ft_memset.c \
 				ft_strtrim.c \
 				ft_split.c \
 				ft_itoa.c \
+				ft_itohex.c \
+				ft_itou.c \
 				ft_strmapi.c \
 				ft_putchar_fd.c \
 				ft_putstr_fd.c \
 				ft_putendl_fd.c \
-				ft_putnbr_fd.c
-
-BSRCS		=	ft_lstnew.c \
+				ft_putnbr_fd.c \
+				ft_lstnew.c \
 				ft_lstadd_front.c \
 				ft_lstsize.c \
 				ft_lstlast.c \
@@ -66,7 +68,6 @@ BSRCS		=	ft_lstnew.c \
 #~~~~ Objects ~~~~#
 
 OBJS		= ${SRCS:.c=.o}
-BOBJS		= ${BSRCS:.c=.o}
 
 #~~~~ HEADERS ~~~~#
 
@@ -95,10 +96,6 @@ all:		${NAME}
 $(NAME):	${OBJS}
 			${AR} ${ARFLAGS} ${NAME} $?
 
-
-bonus:		${BOBJS}
-			${AR} ${ARFLAGS} ${NAME} ${BOBJS}
-
 #~~~~ Compilation Rule ~~~~#
 
 %.o : %.c	${HEADERS}
@@ -107,7 +104,7 @@ bonus:		${BOBJS}
 #~~~~ Cleaning Rules ~~~~#
 		
 clean:
-			${RM} ${OBJS} ${BOBJS}
+			${RM} ${OBJS}
 
 fclean:		clean
 			${RM} ${NAME}
@@ -116,4 +113,4 @@ fclean:		clean
 
 re:			fclean all
 
-.PHONY:		all bonus clean fclean re
+.PHONY:		all clean fclean re

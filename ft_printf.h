@@ -6,7 +6,7 @@
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 17:52:43 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/11 12:39:51 by pthomas          ###   ########lyon.fr   */
+/*   Updated: 2021/01/18 15:28:12 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <stdarg.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <stdio.h>
+# include <wchar.h>
 # include "./libft/libft.h"
 
 # define HASH 1
@@ -24,10 +24,6 @@
 # define HYPHEN 4
 # define SPACE 8
 # define PLUS 16
-# define L 1
-# define LL 2
-# define H 4
-# define HH 8
 
 typedef struct	s_arg
 {
@@ -35,21 +31,26 @@ typedef struct	s_arg
 	int			width;
 	int			dot;
 	int			prec;
-	char		length;
 	char		conv;
+	va_list		ap;
+	int			len;
+	int			caschiant;
 }				t_arg;
 
 int				ft_printf(const char *str,
 				...) __attribute__((format(printf,1,2)));
-int				pf_parse(const char **fmt, t_arg *arg, va_list *ap);
-int				pf_params(char **s, t_arg *arg, va_list *ap, int *len);
-char			*pf_convchar(int c);
+int				pf_parse(const char **fmt, t_arg *arg);
+int				pf_params(char **s, t_arg *arg);
+int				pf_fillspace(char **s, t_arg *arg);
+int				pf_fmtlen(const char **fmt);
+int				pf_lenwospace(const char *s);
+char			*pf_convchar(int c, t_arg *arg);
 char			*pf_convstr(char *str);
-char			*pf_convadress(unsigned long long ptr);
-char			*pf_convint(int nb);
-char			*pf_convunsigned(unsigned int nb);
-char			*pf_convhexa(unsigned long long nb);
-char			*pf_convcaphexa(unsigned int nb);
+char			*pf_convadress(unsigned long long int ptr, t_arg *arg);
+char			*pf_convint(int nb, t_arg *arg);
+char			*pf_convunsigned(unsigned long long int nb, t_arg *arg);
+char			*pf_convhexa(unsigned long long int nb, t_arg *arg);
+char			*pf_convcaphexa(unsigned long long int nb, t_arg *arg);
 char			*pf_convpercent(void);
 
 #endif
