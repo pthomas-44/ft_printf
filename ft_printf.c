@@ -6,7 +6,7 @@
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/10 17:36:00 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/18 15:28:48 by pthomas          ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 13:26:50 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,8 @@ char	*pf_conv(t_arg *arg)
 	char	*s;
 
 	s = 0;
-	s = pf_converter(arg, s);
+	if (!(s = pf_converter(arg, s)))
+		return (0);
 	if ((pf_params(&s, arg)) == -1)
 	{
 		free(s);

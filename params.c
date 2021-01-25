@@ -6,7 +6,7 @@
 /*   By: pthomas <pthomas@student.42lyon.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/08 18:36:01 by pthomas           #+#    #+#             */
-/*   Updated: 2021/01/18 14:58:05 by pthomas          ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 13:22:37 by pthomas          ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,15 @@ int		pf_flags(char **s, t_arg *arg)
 			*s = ft_strjoin_f2("0X", *s);
 	}
 	if (arg->flags & ZERO && !(arg->flags & HYPHEN))
+	{
 		while (pf_lenwospace(*s) < arg->prec
 		|| (pf_lenwospace(*s) < arg->width && arg->dot == 0))
 			*s = ft_strjoin_f2("0", *s);
-	if ((tmp = ft_strchr(*s, '-')))
-	{
-		*tmp = '0';
-		**s = '-';
+		if ((tmp = ft_strchr(*s, '-')))
+		{
+			*tmp = '0';
+			**s = '-';
+		}
 	}
 	return (pf_flags2(s, arg));
 }
